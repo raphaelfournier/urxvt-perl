@@ -1,0 +1,67 @@
+#! perl
+
+#:META:RESOURCE:%.cmd:string:the command to run the GUI filebrowser
+
+=head1 NAME
+
+open-filebrowser - automatic pastebin upload
+
+=head1 EXAMPLES
+
+  URxvt.keysym.C-M-a: open-filebrowser:open
+
+=head1 DESCRIPTION
+
+This is a little extension that opens a GUI filebrowser (Thunar, Nautilus) at
+the selection. It is aimed at being the converse of the "open terminal here" in
+such applications. It can be triggered via a keyboard shortcut or with the
+CTRL-rightclick menu (selection popup in urxvt language).
+
+The command can can be set via a resource:
+
+   URxvt.open-filebrowser.cmd: thunar
+
+=cut
+
+sub openbrowser {
+   my ($self) = @_;
+
+   my $txt = $self->selection;
+
+   my $cmd = $self->{open_filebrowser_cmd};
+
+   my $pid = $self->exec_async ($cmd);
+}
+
+sub on_start {
+   my ($self) = @_;
+
+   $self->{open_filebrowser_cmd} = $self->x_resource ("%.cmd")
+                           || "thunar ";
+
+   push @{ $self->{term}{selection_popup_hook} }, sub {
+      ("open filebrowser here" => sub { $self->openbrowser })
+   };
+
+   ()
+}
+
+sub on_user_command {
+   my ($self, $cmd) = @_;
+
+   if ($cmd eq "open-filebrowser:open") {
+      $self->openbrowser;
+   }
+
+   ()
+}
+
+sub on_action {
+   my ($self, $action) = @_;
+
+   $action eq "open"
+      and $self->openbrowser;
+
+   ()
+}
+
