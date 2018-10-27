@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-open-filebrowser - automatic pastebin upload
+open-filebrowser - open GUI filebrowser at selection
 
 =head1 EXAMPLES
 
@@ -12,9 +12,9 @@ open-filebrowser - automatic pastebin upload
 
 =head1 DESCRIPTION
 
-This is a little extension that opens a GUI filebrowser (Thunar, Nautilus) at
-the selection. It is aimed at being the converse of the "open terminal here" in
-such applications. It can be triggered via a keyboard shortcut or with the
+This is a little extension that opens a GUI filebrowser (Thunar, Nautilus, etc.)
+at the selection. It is aimed at being the converse of the "open terminal here"
+in such applications. It can be triggered via a keyboard shortcut or with the
 CTRL-rightclick menu (selection popup in urxvt language).
 
 The command can can be set via a resource:
@@ -29,6 +29,8 @@ sub openbrowser {
    my $txt = $self->selection;
 
    my $cmd = $self->{open_filebrowser_cmd};
+
+   $cmd = $cmd . " " . $txt;
 
    my $pid = $self->exec_async ($cmd);
 }
