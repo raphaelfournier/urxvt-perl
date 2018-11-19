@@ -20,6 +20,7 @@ CTRL-rightclick menu (selection popup in urxvt language).
 The command can can be set via a resource:
 
    URxvt.open-filebrowser.cmd: thunar
+   URxvt.open-imageviewer.cmd: gthumb
 
 =cut
 
@@ -35,14 +36,33 @@ sub openbrowser {
    my $pid = $self->exec_async ($cmd);
 }
 
+sub openimageviewer {
+   my ($self) = @_;
+
+   my $txt = $self->selection;
+
+   my $cmd = $self->{open_imageviewer_cmd};
+
+   $cmd = $cmd . " " . $txt;
+
+   my $pid = $self->exec_async ($cmd);
+}
+
 sub on_start {
    my ($self) = @_;
 
-   $self->{open_filebrowser_cmd} = $self->x_resource ("%.cmd")
+   $self->{open_filebrowser_cmd} = $self->x_resource ("%browser.cmd")
                            || "thunar ";
+
+   $self->{open_imageviewer_cmd} = $self->x_resource ("viewer%.cmd")
+                           || "gthumb ";
 
    push @{ $self->{term}{selection_popup_hook} }, sub {
       ("open filebrowser here" => sub { $self->openbrowser })
+   };
+
+   push @{ $self->{term}{selection_popup_hook} }, sub {
+      ("open image viewer here" => sub { $self->openimageviewer })
    };
 
    ()
@@ -53,6 +73,11 @@ sub on_user_command {
 
    if ($cmd eq "open-filebrowser:open") {
       $self->openbrowser;
+   }else{
+
+   if ($cmd eq "open-filebrowser:openimageviewer") {
+      $self->openimageviewer;
+   }
    }
 
    ()
